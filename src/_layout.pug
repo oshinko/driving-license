@@ -2,16 +2,52 @@ html(lang='ja')
   head
     meta(charset='utf-8')
     meta(name='viewport', content='width=device-width, initial-scale=1')
+
     style.
+      header {
+        display: flex;
+        gap: .5em;
+        margin-bottom: 1em;
+      }
+
+      footer {
+        display: flex;
+        gap: .5em;
+        margin-top: 1em;
+      }
+
       main {
         display: flex;
         flex-direction: column;
         gap: 1em;
       }
 
+      details {
+        padding-bottom: 1em;
+        border-bottom: 1px dashed black;
+      }
+
+      details:first-child {
+        padding-top: 1em;
+        border-top: 1px dashed black;
+      }
+
       details :not(:is(summary)) {
         margin-left: 1em;
       }
+
+    block head
+
   body
+    header(id='header')
+      a(href='#footer') 最下部へ
+      a(href='./index.html') 個別
+      a(href='./list.html') 一覧
+
     main
       block body
+
+    footer(id='footer')
+      a(href='#header') 最上部へ
+      a(href='./index.html') 個別
+      a(href='./list.html') 一覧
