@@ -29,14 +29,49 @@ details:first-child {
 details :not(:is(summary)) {
   margin-left: 1em;
 }
-</style></head><body><header id="header"><a href="#footer">最下部へ</a><a href="./index.html">個別</a><a href="./list.html">一覧</a></header><main><div id="holder"></div><div style="display: flex; justify-content: flex-end;"><button onclick="reload()">次</button></div><script>async function reload() {
-  const holder = document.querySelector('#holder')
-  holder.innerHTML = ''
-  const resp = await window.fetch('./list.html')
-  const text = await resp.text()
-  const doc = new DOMParser().parseFromString(text, 'text/html')
-  const qs = doc.querySelectorAll('details')
-  const q = qs[Math.floor(Math.random() * qs.length)]
-  holder.append(q)
+</style></head><body><header id="header"><a href="#footer">最下部へ</a><a href="./index.html">個別</a><a href="./list.html">一覧</a></header><main><div id="holder"></div><div style="display: flex; justify-content: space-around;"><button id="prev" onclick="questions.prev()">前</button><button id="next" onclick="questions.next()">次</button></div><script>Array.prototype.shuffle = function () {
+  for (let i = this.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    // [this[i], this[j]] = [this[j], this[i]]
+    const t = this[i]
+    this[i] = this[j]
+    this[j] = t
+  }
 }
-reload()</script></main><footer id="footer"><a href="#header">最上部へ</a><a href="./index.html">個別</a><a href="./list.html">一覧</a></footer></body></html>
+
+const questions = {
+  values: [],
+  index: 0,
+  holder: document.querySelector('#holder'),
+  nextTrigger: document.querySelector('#next'),
+  prevTrigger: document.querySelector('#prev'),
+
+  render() {
+    this.nextTrigger.disabled = this.index >= this.values.length - 1
+    this.prevTrigger.disabled = this.index <= 0
+    this.holder.innerHTML = ''
+    this.holder.append(this.values[this.index])
+  },
+
+  async load() {
+    const resp = await window.fetch('./list.html')
+    const text = await resp.text()
+    const doc = new DOMParser().parseFromString(text, 'text/html')
+    this.values = Array.from(doc.querySelectorAll('details'))
+    this.values.shuffle()
+    this.index = 0
+    this.render()
+  },
+
+  next() {
+    this.index++
+    this.render()
+  },
+
+  prev() {
+    this.index--
+    this.render()
+  }
+}
+
+questions.load()</script></main><footer id="footer"><a href="#header">最上部へ</a><a href="./index.html">個別</a><a href="./list.html">一覧</a></footer></body></html>

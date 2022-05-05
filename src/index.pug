@@ -3,18 +3,54 @@ extends _layout
 block body
   div(id='holder')
 
-  div(style='display: flex; justify-content: flex-end;')
-    button(onclick='reload()') 次
+  div(style='display: flex; justify-content: space-around;')
+    button(id='prev', onclick='questions.prev()') 前
+    button(id='next', onclick='questions.next()') 次
 
   script.
-    async function reload() {
-      const holder = document.querySelector('#holder')
-      holder.innerHTML = ''
-      const resp = await window.fetch('./list.html')
-      const text = await resp.text()
-      const doc = new DOMParser().parseFromString(text, 'text/html')
-      const qs = doc.querySelectorAll('details')
-      const q = qs[Math.floor(Math.random() * qs.length)]
-      holder.append(q)
+    Array.prototype.shuffle = function () {
+      for (let i = this.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+        // [this[i], this[j]] = [this[j], this[i]]
+        const t = this[i]
+        this[i] = this[j]
+        this[j] = t
+      }
     }
-    reload()
+
+    const questions = {
+      values: [],
+      index: 0,
+      holder: document.querySelector('#holder'),
+      nextTrigger: document.querySelector('#next'),
+      prevTrigger: document.querySelector('#prev'),
+
+      render() {
+        this.nextTrigger.disabled = this.index >= this.values.length - 1
+        this.prevTrigger.disabled = this.index <= 0
+        this.holder.innerHTML = ''
+        this.holder.append(this.values[this.index])
+      },
+
+      async load() {
+        const resp = await window.fetch('./list.html')
+        const text = await resp.text()
+        const doc = new DOMParser().parseFromString(text, 'text/html')
+        this.values = Array.from(doc.querySelectorAll('details'))
+        this.values.shuffle()
+        this.index = 0
+        this.render()
+      },
+
+      next() {
+        this.index++
+        this.render()
+      },
+
+      prev() {
+        this.index--
+        this.render()
+      }
+    }
+
+    questions.load()
