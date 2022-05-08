@@ -1,10 +1,21 @@
 extends _layout
 
+block head
+  style.
+    .d-flex {
+      display: flex;
+    }
+
+    .justify-content-space-around {
+      justify-content: space-around;
+    }
+
 block body
   div(id='holder')
 
-  div(style='display: flex; justify-content: space-around;')
+  div(class='d-flex justify-content-space-around')
     button(id='prev', onclick='questions.prev()') 前
+    div(id='progress')
     button(id='next', onclick='questions.next()') 次
 
   script.
@@ -24,12 +35,24 @@ block body
       holder: document.querySelector('#holder'),
       nextTrigger: document.querySelector('#next'),
       prevTrigger: document.querySelector('#prev'),
+      progress: document.querySelector('#progress'),
+
+      first() {
+        this.index = 0
+        this.render()
+      },
+
+      last() {
+        this.index = Math.max(this.values.length - 1, 0)
+        this.render()
+      },
 
       render() {
         this.nextTrigger.disabled = this.index >= this.values.length - 1
         this.prevTrigger.disabled = this.index <= 0
         this.holder.innerHTML = ''
         this.holder.append(this.values[this.index])
+        this.progress.innerText = this.index + 1 + '/' + (this.values.length)
       },
 
       async load() {
@@ -38,19 +61,35 @@ block body
         const doc = new DOMParser().parseFromString(text, 'text/html')
         this.values = Array.from(doc.querySelectorAll('details'))
         this.values.shuffle()
-        this.index = 0
-        this.render()
+        this.first()
       },
 
       next() {
+        if (this.index >= this.values.length - 1)
+          return
         this.index++
         this.render()
       },
 
       prev() {
+        if (this.index <= 0)
+          return
         this.index--
         this.render()
       }
     }
 
     questions.load()
+
+    window.addEventListener('keydown', e => {
+      if (e.key === 'ArrowLeft')
+        if (e.ctrlKey)
+          questions.first()
+        else
+          questions.prev()
+      else if (e.key === 'ArrowRight')
+        if (e.ctrlKey)
+          questions.last()
+        else
+          questions.next()
+    })

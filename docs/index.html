@@ -29,7 +29,22 @@ details:first-child {
 details :not(:is(summary)) {
   margin-left: 1em;
 }
-</style></head><body><header id="header"><a href="#footer">最下部へ</a><a href="./index.html">個別</a><a href="./list.html">一覧</a></header><main><div id="holder"></div><div style="display: flex; justify-content: space-around;"><button id="prev" onclick="questions.prev()">前</button><button id="next" onclick="questions.next()">次</button></div><script>Array.prototype.shuffle = function () {
+
+.d-flex {
+  display: flex;
+}
+
+.justify-content-space-around {
+  justify-content: space-around;
+}
+</style><style>.d-flex {
+  display: flex;
+}
+
+.justify-content-space-around {
+  justify-content: space-around;
+}
+</style></head><body><header id="header"><a href="#footer">最下部へ</a><a href="./index.html">個別</a><a href="./list.html">一覧</a></header><main><div id="holder"></div><div class="d-flex justify-content-space-around"><button id="prev" onclick="questions.prev()">前</button><div id="progress"></div><button id="next" onclick="questions.next()">次</button></div><script>Array.prototype.shuffle = function () {
   for (let i = this.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
     // [this[i], this[j]] = [this[j], this[i]]
@@ -45,12 +60,24 @@ const questions = {
   holder: document.querySelector('#holder'),
   nextTrigger: document.querySelector('#next'),
   prevTrigger: document.querySelector('#prev'),
+  progress: document.querySelector('#progress'),
+
+  first() {
+    this.index = 0
+    this.render()
+  },
+
+  last() {
+    this.index = Math.max(this.values.length - 1, 0)
+    this.render()
+  },
 
   render() {
     this.nextTrigger.disabled = this.index >= this.values.length - 1
     this.prevTrigger.disabled = this.index <= 0
     this.holder.innerHTML = ''
     this.holder.append(this.values[this.index])
+    this.progress.innerText = this.index + 1 + '/' + (this.values.length)
   },
 
   async load() {
@@ -59,19 +86,35 @@ const questions = {
     const doc = new DOMParser().parseFromString(text, 'text/html')
     this.values = Array.from(doc.querySelectorAll('details'))
     this.values.shuffle()
-    this.index = 0
-    this.render()
+    this.first()
   },
 
   next() {
+    if (this.index >= this.values.length - 1)
+      return
     this.index++
     this.render()
   },
 
   prev() {
+    if (this.index <= 0)
+      return
     this.index--
     this.render()
   }
 }
 
-questions.load()</script></main><footer id="footer"><a href="#header">最上部へ</a><a href="./index.html">個別</a><a href="./list.html">一覧</a></footer></body></html>
+questions.load()
+
+window.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft')
+    if (e.ctrlKey)
+      questions.first()
+    else
+      questions.prev()
+  else if (e.key === 'ArrowRight')
+    if (e.ctrlKey)
+      questions.last()
+    else
+      questions.next()
+})</script></main><footer id="footer"><a href="#header">最上部へ</a><a href="./index.html">個別</a><a href="./list.html">一覧</a></footer></body></html>
