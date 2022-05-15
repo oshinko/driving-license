@@ -2,20 +2,44 @@ extends _layout
 
 block head
   style.
-    .d-flex {
-      display: flex;
+    .panel {
+      display: grid;
+      grid-template-columns: max-content 1fr max-content;
+      grid-template-rows: 1.5em;
+      gap: .5em;
     }
 
-    .justify-content-space-around {
-      justify-content: space-around;
+    #progress {
+      position: relative;
+      height: 100%;
+      border: 1px solid #CCC;
+      border-radius: 4px;
+    }
+
+    #progress .value {
+      width: 0;
+      height: 100%;
+      background-color: #28a745;
+    }
+
+    #progress .ratio {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: .88em;
     }
 
 block body
   div(id='holder')
 
-  div(class='d-flex justify-content-space-around')
+  div(class='panel')
     button(id='prev', onclick='questions.prev()') 前
+
     div(id='progress')
+      div(class='value')
+      div(class='ratio')
+
     button(id='next', onclick='questions.next()') 次
 
   script.
@@ -52,7 +76,10 @@ block body
         this.prevTrigger.disabled = this.index <= 0
         this.holder.innerHTML = ''
         this.holder.append(this.values[this.index])
-        this.progress.innerText = this.index + 1 + '/' + (this.values.length)
+        this.progress.querySelector('.value').style.width =
+          (this.index + 1) / this.values.length * 100 + '%'
+        this.progress.querySelector('.ratio').innerText =
+          this.index + 1 + '/' + (this.values.length)
       },
 
       async load() {
