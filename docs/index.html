@@ -108,7 +108,6 @@ const questions = {
     const text = await resp.text()
     const doc = new DOMParser().parseFromString(text, 'text/html')
     this.values = Array.from(doc.querySelectorAll('details'))
-      .slice(165)  // FIXME
     this.values.shuffle()
     this.first()
   },
